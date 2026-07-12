@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% block title %}Today's Tasks{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div>
+            <h1 class="dashboard-title">
+                {% now "l, N j" %}
+                <span class="day-badge">Today</span>
+            </h1>
+            <p class="dashboard-subtitle">
+                {% if pending_count == 0 and total_count == 0 %}
+                    No tasks yet — add your first one below.
+                {% elif pending_count == 0 %}
+                    All done! 🎉 You cleared today's list.
+                {% else %}
+                    {{ pending_count }} task{{ pending_count|pluralize }} left to handle.
+                {% endif %}
+            </p>
+        </div>
+        {% if can_add %}
+        <div class="d-flex gap-2">
+            {% if pending_count > 0 %}
+            <form method="post" action="{% url 'confirm_tasks' %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary">
+                    <i class="fa-solid fa-envelope"></i> Confirm Tasks
+                </button>
+            </form>
+            {% endif %}
+            <a href="{% url 'add_task' %}" class="btn btn-primary btn-add">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add Task</span>
+            </a>
+        </div>
+        {% else %}
+        <div class="btn btn-disabled">
+            <i class="fa-solid fa-lock"></i> Limit reached
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+        <div class="stat-pill stat-pill--total">
+            <span class="stat-pill-number">{{ total_count }}</span>
+            <span class="stat-pill-label">Total</span>
+        </div>
+        <div class="stat-pill stat-pill--pending">
+            <span class="stat-pill-number">{{ pending_count }}</span>
+            <span class="stat-pill-label">Pending</span>
+        </div>
+        <div class="stat-pill stat-pill--done">
+            <span class="stat-pill-number">{{ completed_count }}</span>
+            <span class="stat-pill-label">Done</span>
+        </div>
+        <div class="stat-pill stat-pill--removed">
+            <span class="stat-pill-number">{{ removed_count }}</span>
+            <span class="stat-pill-label">Skipped</span>
+        </div>
+        <div class="stat-pill stat-pill--slots">
+            <span class="stat-pill-number">{{ remaining_slots }}</span>
+            <span class="stat-pill-label">Slots left</span>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    {% if total_count > 0 %}
+    <div class="progress-section">
+        <div class="progress-bar-custom">
+            <div class="progress-fill" style="width: {{ completion_rate }}%"></div>
+        </div>
+        <span class="progress-label">{{ completion_rate }}% complete</span>
+    </div>
+    {% endif %}
+
+
+    <!-- Task List -->
+    <div class="tasks-section">
+        {% if tasks %}
+            <!-- Pending Tasks -->
+            {% if pending_tasks %}
+            <div class="task-group">
+                <div class="task-group-header">
+                    <h2 class="task-group-title">
+                        <span class="group-dot group-dot--pending"></span>
+                        Pending
+                        <span class="task-count">{{ pending_count }}</span>
+                    </h2>
+                </div>
+                <div class="task-list">
+                    {% for task in pending_tasks %}
+                    <div class="task-card task-card--pending" id="task-{{ task.pk }}">
+                        <div class="task-main">
+                            <div class="task-check-area">
+                                <form method="post" action="{% url 'complete_task' task.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="check-btn" title="Mark as complete">
+                                        <i class="fa-regular fa-circle"></i>
+                                    </button>
+                                </form>
+                            </div>
+                            <div class="task-content">
+                                <div class="task-title">{{ task.title }}</div>
+                                {% if task.description %}
+                                <div class="task-desc">{{ task.description }}</div>
+                                {% endif %}
+                                <div class="task-meta">
+                                    Added {{ task.created_at|timesince }} ago
+                                </div>
+                            </div>
+                            <div class="task-actions">
+                                <a href="{% url 'edit_task' task.pk %}" class="task-btn task-btn--edit" title="Edit task">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+                                <form method="post" action="{% url 'remove_task' task.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="task-btn task-btn--remove" title="Skip task for today">
+                                        <i class="fa-solid fa-forward-step"></i>
+                                    </button>
+                                </form>
+                                <form method="post" action="{% url 'delete_task' task.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="task-btn task-btn--delete" title="Permanently delete task"
+                                        onclick="return confirm('Permanently delete this task? This cannot be undone.')">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Completed Tasks -->
+            {% if completed_tasks %}
+            <div class="task-group">
+                <div class="task-group-header">
+                    <h2 class="task-group-title">
+                        <span class="group-dot group-dot--done"></span>
+                        Completed
+                        <span class="task-count">{{ completed_count }}</span>
+                    </h2>
+                </div>
+                <div class="task-list">
+                    {% for task in completed_tasks %}
+                    <div class="task-card task-card--completed">
+                        <div class="task-main">
+                            <div class="task-check-area">
+                                <div class="check-btn check-btn--done">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                            </div>
+                            <div class="task-content">
+                                <div class="task-title task-title--done">{{ task.title }}</div>
+                                {% if task.description %}
+                                <div class="task-desc task-desc--done">{{ task.description }}</div>
+                                {% endif %}
+                                <div class="task-meta task-meta--done">
+                                    Completed {{ task.completed_at|timesince }} ago
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Removed Tasks -->
+            {% if removed_tasks %}
+            <div class="task-group">
+                <div class="task-group-header collapsed-header" data-toggle="removed-tasks">
+                    <h2 class="task-group-title">
+                        <span class="group-dot group-dot--removed"></span>
+                        Skipped
+                        <span class="task-count">{{ removed_count }}</span>
+                        <i class="fa-solid fa-chevron-down toggle-arrow ms-1"></i>
+                    </h2>
+                </div>
+                <div class="task-list" id="removed-tasks" style="display:none;">
+                    {% for task in removed_tasks %}
+                    <div class="task-card task-card--removed">
+                        <div class="task-main">
+                            <div class="task-check-area">
+                                <div class="check-btn check-btn--removed">
+                                    <i class="fa-solid fa-ban"></i>
+                                </div>
+                            </div>
+                            <div class="task-content">
+                                <div class="task-title task-title--removed">{{ task.title }}</div>
+                                <div class="task-meta">Removed {{ task.removed_at|timesince }} ago</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="empty-state">
+            <div class="empty-icon">📝</div>
+            <h2 class="empty-title">Nothing on your list yet</h2>
+            <p class="empty-desc">Add up to {{ max_tasks }} tasks. We'll remind you every 4 hours until you're done.</p>
+            <a href="{% url 'add_task' %}" class="btn btn-primary btn-lg">
+                <i class="fa-solid fa-plus me-1"></i> Add your first task
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Trigger reminder if no last reminder -->
+    {% if not last_reminder and total_count > 0 %}
+    <div class="text-center mt-4">
+        <form method="post" action="{% url 'trigger_reminder' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-secondary">
+                <i class="fa-solid fa-bell me-1"></i> Test Reminder Email
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

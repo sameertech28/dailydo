@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Add Task{% endblock %}
+
+{% block content %}
+<div class="page-container page-container--narrow">
+    <div class="form-page-header">
+        <a href="{% url 'dashboard' %}" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Back
+        </a>
+        <h1 class="form-page-title">New Tasks</h1>
+        <p class="form-page-subtitle">
+            {{ remaining_slots }} of {{ max_tasks }} slots remaining.
+        </p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-card mb-4">
+            <div class="form-group mb-0">
+                <label class="form-label" for="id_date">Date for these tasks <span class="label-optional">(optional)</span></label>
+                <input type="date" name="date" class="form-control" id="id_date">
+                <div class="form-hint">Leave empty to schedule for today. All tasks below will be added to this date.</div>
+            </div>
+        </div>
+
+        <div id="tasks-container">
+            <div class="form-card task-block mb-3">
+                <div class="form-group">
+                    <label class="form-label">Task title</label>
+                    <input type="text" name="title" class="form-control form-control-lg" placeholder="What do you need to do?" required autofocus>
+                    <div class="form-hint">Be specific — "Send project report to team" beats "work stuff".</div>
+                </div>
+                <div class="form-group mb-0">
+                    <label class="form-label">Notes <span class="label-optional">(optional)</span></label>
+                    <textarea name="description" class="form-control" rows="2" placeholder="Add notes, links, or context..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center mb-4">
+            <button type="button" id="add-more-btn" class="btn btn-secondary btn-sm">
+                <i class="fa-solid fa-plus me-1"></i> Add another task
+            </button>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-check me-1"></i> Save All Tasks
+            </button>
+            <a href="{% url 'dashboard' %}" class="btn btn-ghost">Cancel</a>
+        </div>
+    </form>
+
+    <div class="capacity-bar mt-5">
+        <div class="capacity-fill" style="width: {{ remaining_slots|divisibleby:max_tasks|yesno:'0,'}}{% widthratio remaining_slots max_tasks 100 %}%"></div>
+    </div>
+    <p class="capacity-label">{{ remaining_slots }}/{{ max_tasks }} slots available</p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('tasks-container');
+        const addBtn = document.getElementById('add-more-btn');
+        
+        addBtn.addEventListener('click', function() {
+            const block = document.createElement('div');
+            block.className = 'form-card task-block mb-3 position-relative';
+            block.innerHTML = `
+                <button type="button" class="btn-close position-absolute top-0 end-0 m-3 remove-task-btn" aria-label="Close"></button>
+                <div class="form-group">
+                    <label class="form-label">Task title</label>
+                    <input type="text" name="title" class="form-control form-control-lg" placeholder="What else do you need to do?" required>
+                </div>
+                <div class="form-group mb-0">
+                    <label class="form-label">Notes <span class="label-optional">(optional)</span></label>
+                    <textarea name="description" class="form-control" rows="2" placeholder="Add notes, links, or context..."></textarea>
+                </div>
+            `;
+            container.appendChild(block);
+            block.querySelector('input[name="title"]').focus();
+            
+            block.querySelector('.remove-task-btn').addEventListener('click', function() {
+                block.remove();
+            });
+        });
+    });
+</script>
+{% endblock %}
