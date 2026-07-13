@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div class="auth-logo">
+                <span class="brand-icon-lg">✓</span>
+            </div>
+            <h1 class="auth-title">Welcome back</h1>
+            <p class="auth-subtitle">Sign in to pick up where you left off.</p>
+        </div>
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label" for="id_username">Email address</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                <div class="form-error">{{ form.username.errors.0 }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="id_password">Password</label>
+                {{ form.password }}
+                {% if form.password.errors %}
+                <div class="form-error">{{ form.password.errors.0 }}</div>
+                {% endif %}
+            </div>
+            {% if form.non_field_errors %}
+            <div class="form-error mb-3">{{ form.non_field_errors.0 }}</div>
+            {% endif %}
+            <button type="submit" class="btn btn-primary btn-full">
+                Sign in <i class="fa-solid fa-arrow-right ms-1"></i>
+            </button>
+        </form>
+        <div class="auth-footer">
+            Don't have an account? <a href="{% url 'register' %}">Create one free</a>
+        </div>
+    </div>
+    <div class="auth-illustration">
+        <div class="illustration-card">
+            <div class="illus-icon">⏰</div>
+            <p class="illus-text">Reminders every 4 hours until your list is clear.</p>
+        </div>
+        <div class="illustration-card">
+            <div class="illus-icon">📦</div>
+            <p class="illus-text">Auto-archives at 11:59 PM — a fresh start every morning.</p>
+        </div>
+        <div class="illustration-card">
+            <div class="illus-icon">🌙</div>
+            <p class="illus-text">Quiet hours 11 PM–5 AM. We respect your sleep.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

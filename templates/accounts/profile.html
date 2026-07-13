@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <h1 class="page-title">Your Profile</h1>
+        <p class="page-subtitle">Track your productivity journey.</p>
+    </div>
+
+    <div class="profile-grid">
+        <div class="profile-card">
+            <div class="profile-avatar">{{ user.display_name|first|upper }}</div>
+            <h2 class="profile-name">{{ user.display_name }}</h2>
+            <p class="profile-email">{{ user.email }}</p>
+            <p class="profile-joined">Member since {{ user.created_at|date:"F Y" }}</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card stat-card--blue">
+                <div class="stat-number">{{ total_tasks_ever }}</div>
+                <div class="stat-label">Total Tasks Created</div>
+            </div>
+            <div class="stat-card stat-card--green">
+                <div class="stat-number">{{ completed_ever }}</div>
+                <div class="stat-label">Tasks Completed</div>
+            </div>
+            <div class="stat-card stat-card--purple">
+                <div class="stat-number">{{ completion_rate }}%</div>
+                <div class="stat-label">Completion Rate</div>
+            </div>
+            <div class="stat-card stat-card--orange">
+                <div class="stat-number">{{ streak }}</div>
+                <div class="stat-label">Day Streak 🔥</div>
+            </div>
+            <div class="stat-card stat-card--teal">
+                <div class="stat-number">{{ total_records }}</div>
+                <div class="stat-label">Active Days</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-row">
+        <a href="{% url 'dashboard' %}" class="btn btn-primary">
+            <i class="fa-solid fa-house-chimney me-1"></i> Back to Today
+        </a>
+        <a href="{% url 'history' %}" class="btn btn-secondary">
+            <i class="fa-solid fa-chart-line me-1"></i> View History
+        </a>
+    </div>
+</div>
+{% endblock %}
