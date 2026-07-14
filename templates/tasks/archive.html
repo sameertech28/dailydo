@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% block title %}Archive{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Archive</h1>
+            <p class="page-subtitle">Tasks that weren't completed before midnight.</p>
+        </div>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+            <i class="fa-solid fa-house-chimney me-1"></i> Today
+        </a>
+    </div>
+
+    <!-- Date Filter -->
+    <div class="filter-bar">
+        <form method="get" class="filter-form">
+            <div class="filter-group">
+                <label class="form-label" for="date-filter">Filter by date</label>
+                <input type="date" id="date-filter" name="date" value="{{ date_filter }}"
+                    class="form-control form-control-sm filter-input">
+            </div>
+            <button type="submit" class="btn btn-sm btn-secondary">
+                <i class="fa-solid fa-filter me-1"></i> Filter
+            </button>
+            {% if date_filter %}
+            <a href="{% url 'archive' %}" class="btn btn-sm btn-ghost">
+                <i class="fa-solid fa-xmark me-1"></i> Clear
+            </a>
+            {% endif %}
+        </form>
+        <div class="filter-count">{{ total_archived }} archived task{{ total_archived|pluralize }}</div>
+    </div>
+
+    <!-- Archive Date Quick Links -->
+    {% if archive_dates %}
+    <div class="date-pills">
+        {% for arch_date in archive_dates|slice:":10" %}
+        <a href="?date={{ arch_date|date:'Y-m-d' }}"
+           class="date-pill {% if date_filter == arch_date|date:'Y-m-d' %}date-pill--active{% endif %}">
+            {{ arch_date|date:"M j" }}
+        </a>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Task List -->
+    {% if tasks %}
+    <div class="task-list archive-list">
+        {% regroup tasks by archived_date as tasks_by_date %}
+        {% for date_group in tasks_by_date %}
+        <div class="archive-date-group">
+            <div class="archive-date-header">
+                <span class="archive-date-label">{{ date_group.grouper|date:"l, F j, Y" }}</span>
+                <span class="archive-count">{{ date_group.list|length }} task{{ date_group.list|length|pluralize }}</span>
+            </div>
+            {% for task in date_group.list %}
+            <div class="task-card task-card--archived">
+                <div class="task-main">
+                    <div class="task-check-area">
+                        <div class="check-btn check-btn--archived">
+                            <i class="fa-solid fa-box-archive"></i>
+                        </div>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title task-title--archived">{{ task.title }}</div>
+                        {% if task.description %}
+                        <div class="task-desc">{{ task.description }}</div>
+                        {% endif %}
+                        <div class="task-meta">Originally added {{ task.created_at|date:"g:i A" }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📦</div>
+        <h2 class="empty-title">Nothing archived {% if date_filter %}for this date{% endif %}</h2>
+        <p class="empty-desc">
+            {% if date_filter %}
+            No archived tasks for {{ date_filter }}. Try a different date.
+            {% else %}
+            Tasks that aren't completed by 11:59 PM automatically end up here.
+            {% endif %}
+        </p>
+        {% if date_filter %}
+        <a href="{% url 'archive' %}" class="btn btn-secondary">Show all archived</a>
+        {% else %}
+        <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to today</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
