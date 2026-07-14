@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}History{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">History</h1>
+            <p class="page-subtitle">Your productivity record — last 30 days.</p>
+        </div>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+            <i class="fa-solid fa-house-chimney me-1"></i> Today
+        </a>
+    </div>
+
+    {% if records %}
+    <div class="history-list">
+        {% for record in records %}
+        <a href="{% url 'history_detail' record.date|date:'Y-m-d' %}" class="history-card-link">
+            <div class="history-card {% if record.all_completed %}history-card--perfect{% endif %}">
+                <div class="history-date">
+                    <div class="history-day">{{ record.date|date:"j" }}</div>
+                    <div class="history-month">{{ record.date|date:"M" }}</div>
+                    {% if record.all_completed %}
+                    <div class="perfect-badge">🏆</div>
+                    {% endif %}
+                </div>
+                <div class="history-content">
+                    <div class="history-title">
+                        {{ record.date|date:"l, F j, Y" }}
+                        {% if record.all_completed %}
+                        <span class="badge badge-perfect ms-2">Perfect Day</span>
+                        {% endif %}
+                    </div>
+                    <div class="history-stats">
+                        <span class="hist-stat hist-stat--total">
+                            <i class="fa-solid fa-list-check"></i> {{ record.total_tasks }} added
+                        </span>
+                        <span class="hist-stat hist-stat--done">
+                            <i class="fa-solid fa-check"></i> {{ record.completed_tasks }} done
+                        </span>
+                        <span class="hist-stat hist-stat--removed">
+                            <i class="fa-solid fa-forward-step"></i> {{ record.removed_tasks }} skipped
+                        </span>
+                        {% if record.archived_tasks > 0 %}
+                        <span class="hist-stat hist-stat--archived">
+                            <i class="fa-solid fa-box-archive"></i> {{ record.archived_tasks }} archived
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Task Preview -->
+                    {% if record.completed_list or record.skipped_list %}
+                    <div class="history-task-preview">
+                        {% for task in record.completed_list %}
+                        <span class="preview-chip preview-chip--done">
+                            <i class="fa-solid fa-check"></i> {{ task.title|truncatewords:5 }}
+                        </span>
+                        {% endfor %}
+                        {% for task in record.skipped_list %}
+                        <span class="preview-chip preview-chip--skipped">
+                            <i class="fa-solid fa-forward-step"></i> {{ task.title|truncatewords:5 }}
+                        </span>
+                        {% endfor %}
+                        {% if record.completed_total > 3 or record.skipped_total > 3 %}
+                        <span class="preview-chip preview-chip--more">
+                            + more…
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="history-meter">
+                    <div class="meter-ring">
+                        <svg viewBox="0 0 36 36" class="ring-svg">
+                            <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="ring-fill" stroke-dasharray="{{ record.completion_rate }}, 100"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <span class="ring-label">{{ record.completion_rate }}%</span>
+                    </div>
+                </div>
+                <div class="history-arrow">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <h2 class="empty-title">No history yet</h2>
+        <p class="empty-desc">Start adding and completing tasks — your record will appear here.</p>
+        <a href="{% url 'dashboard' %}" class="btn btn-primary">Go to today</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

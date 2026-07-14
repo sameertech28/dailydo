@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% block title %}{{ day|date:"F j, Y" }} — History{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Back Link -->
+    <a href="{% url 'history' %}" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> Back to History
+    </a>
+
+    <!-- Header -->
+    <div class="detail-header">
+        <div>
+            <h1 class="page-title">
+                {{ day|date:"l, F j, Y" }}
+                {% if record and record.all_completed %}
+                <span class="badge badge-perfect ms-2">🏆 Perfect Day</span>
+                {% endif %}
+            </h1>
+            <p class="page-subtitle">
+                {{ total_count }} task{{ total_count|pluralize }} total
+                — {{ completion_rate }}% completion rate
+            </p>
+        </div>
+    </div>
+
+    <!-- Day Stats -->
+    <div class="stats-bar" style="margin-top: 20px;">
+        <div class="stat-pill stat-pill--total">
+            <span class="stat-pill-number">{{ total_count }}</span>
+            <span class="stat-pill-label">Total</span>
+        </div>
+        <div class="stat-pill stat-pill--done">
+            <span class="stat-pill-number">{{ completed_count }}</span>
+            <span class="stat-pill-label">Done</span>
+        </div>
+        <div class="stat-pill stat-pill--removed">
+            <span class="stat-pill-number">{{ skipped_count }}</span>
+            <span class="stat-pill-label">Skipped</span>
+        </div>
+        {% if archived_count > 0 %}
+        <div class="stat-pill">
+            <span class="stat-pill-number" style="color: var(--color-muted);">{{ archived_count }}</span>
+            <span class="stat-pill-label">Archived</span>
+        </div>
+        {% endif %}
+        {% if pending_count > 0 %}
+        <div class="stat-pill stat-pill--pending">
+            <span class="stat-pill-number">{{ pending_count }}</span>
+            <span class="stat-pill-label">Pending</span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Progress Bar -->
+    {% if total_count > 0 %}
+    <div class="progress-section" style="margin-top: 16px;">
+        <div class="progress-bar-custom">
+            <div class="progress-fill" style="width: {{ completion_rate }}%"></div>
+        </div>
+        <span class="progress-label">{{ completion_rate }}%</span>
+    </div>
+    {% endif %}
+
+    <!-- Completed Tasks -->
+    {% if completed_tasks %}
+    <div class="task-group" style="margin-top: 28px;">
+        <div class="task-group-header">
+            <h2 class="task-group-title">
+                <span class="group-dot group-dot--done"></span>
+                Completed
+                <span class="task-count">{{ completed_count }}</span>
+            </h2>
+        </div>
+        <div class="task-list">
+            {% for task in completed_tasks %}
+            <div class="task-card task-card--completed">
+                <div class="task-main">
+                    <div class="task-check-area">
+                        <div class="check-btn check-btn--done">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title task-title--done">{{ task.title }}</div>
+                        {% if task.description %}
+                        <div class="task-desc task-desc--done">{{ task.description }}</div>
+                        {% endif %}
+                        <div class="task-meta task-meta--done">
+                            <i class="fa-regular fa-clock"></i>
+                            Added {{ task.created_at|date:"g:i A" }}
+                            {% if task.completed_at %}
+                            · Completed {{ task.completed_at|date:"g:i A" }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Skipped Tasks -->
+    {% if skipped_tasks %}
+    <div class="task-group" style="margin-top: 28px;">
+        <div class="task-group-header">
+            <h2 class="task-group-title">
+                <span class="group-dot group-dot--removed"></span>
+                Skipped
+                <span class="task-count">{{ skipped_count }}</span>
+            </h2>
+        </div>
+        <div class="task-list">
+            {% for task in skipped_tasks %}
+            <div class="task-card task-card--removed">
+                <div class="task-main">
+                    <div class="task-check-area">
+                        <div class="check-btn check-btn--removed">
+                            <i class="fa-solid fa-forward-step"></i>
+                        </div>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title task-title--removed">{{ task.title }}</div>
+                        {% if task.description %}
+                        <div class="task-desc">{{ task.description }}</div>
+                        {% endif %}
+                        <div class="task-meta">
+                            <i class="fa-regular fa-clock"></i>
+                            Added {{ task.created_at|date:"g:i A" }}
+                            {% if task.removed_at %}
+                            · Skipped {{ task.removed_at|date:"g:i A" }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Archived Tasks -->
+    {% if archived_tasks %}
+    <div class="task-group" style="margin-top: 28px;">
+        <div class="task-group-header">
+            <h2 class="task-group-title">
+                <span class="group-dot" style="background: var(--color-gray-300);"></span>
+                Archived
+                <span class="task-count">{{ archived_count }}</span>
+            </h2>
+        </div>
+        <div class="task-list">
+            {% for task in archived_tasks %}
+            <div class="task-card task-card--archived">
+                <div class="task-main">
+                    <div class="task-check-area">
+                        <div class="check-btn check-btn--archived">
+                            <i class="fa-solid fa-box-archive"></i>
+                        </div>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title task-title--archived">{{ task.title }}</div>
+                        {% if task.description %}
+                        <div class="task-desc">{{ task.description }}</div>
+                        {% endif %}
+                        <div class="task-meta">
+                            <i class="fa-regular fa-clock"></i>
+                            Added {{ task.created_at|date:"g:i A" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Pending Tasks (shouldn't normally appear in history, but just in case) -->
+    {% if pending_tasks %}
+    <div class="task-group" style="margin-top: 28px;">
+        <div class="task-group-header">
+            <h2 class="task-group-title">
+                <span class="group-dot group-dot--pending"></span>
+                Still Pending
+                <span class="task-count">{{ pending_count }}</span>
+            </h2>
+        </div>
+        <div class="task-list">
+            {% for task in pending_tasks %}
+            <div class="task-card task-card--pending">
+                <div class="task-main">
+                    <div class="task-check-area">
+                        <div class="check-btn">
+                            <i class="fa-regular fa-circle"></i>
+                        </div>
+                    </div>
+                    <div class="task-content">
+                        <div class="task-title">{{ task.title }}</div>
+                        {% if task.description %}
+                        <div class="task-desc">{{ task.description }}</div>
+                        {% endif %}
+                        <div class="task-meta">
+                            <i class="fa-regular fa-clock"></i>
+                            Added {{ task.created_at|date:"g:i A" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- No tasks for this day -->
+    {% if total_count == 0 %}
+    <div class="empty-state" style="margin-top: 28px;">
+        <div class="empty-icon">📭</div>
+        <h2 class="empty-title">No tasks recorded</h2>
+        <p class="empty-desc">There were no tasks logged for this day.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
