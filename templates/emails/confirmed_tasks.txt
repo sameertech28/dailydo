@@ -1,0 +1,14 @@
+Hi {{ user.display_name|default:user.email }},
+
+You have confirmed your tasks for today. You currently have {{ task_count }} task{{ task_count|pluralize }} on your plate:
+
+{% for task in pending_tasks %}
+- {{ task.title }}{% if task.description %} ({{ task.description }}){% endif %}
+{% endfor %}
+
+We'll remind you about these tasks every 4 hours until they are completed.
+
+Go to Dashboard: {{ site_url }}
+
+--
+Sent by DailyDo • You receive this because you manually confirmed your tasks.

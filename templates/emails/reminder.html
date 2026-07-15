@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; margin: 0; padding: 20px; }
+  .container { max-width: 540px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .header { background: linear-gradient(135deg, #2563eb, #1d4ed8); padding: 32px 32px 24px; text-align: center; }
+  .logo { font-size: 28px; font-weight: 800; color: white; letter-spacing: -1px; }
+  .logo span { background: rgba(255,255,255,0.2); border-radius: 8px; padding: 4px 10px; }
+  .header-sub { color: rgba(255,255,255,0.8); font-size: 14px; margin-top: 6px; }
+  .body { padding: 32px; }
+  .greeting { font-size: 20px; font-weight: 700; color: #111; margin-bottom: 8px; }
+  .intro { color: #555; font-size: 15px; line-height: 1.6; margin-bottom: 24px; }
+  .summary { background: #f8faff; border-radius: 8px; padding: 16px 20px; margin-bottom: 24px; border-left: 4px solid #2563eb; }
+  .summary-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; }
+  .summary-label { color: #666; }
+  .summary-value { font-weight: 600; color: #111; }
+  .task-section { margin-bottom: 24px; }
+  .task-section-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #999; margin-bottom: 12px; }
+  .task-item { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 12px; }
+  .task-dot { width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; flex-shrink: 0; margin-top: 6px; }
+  .task-text { font-size: 15px; color: #333; font-weight: 500; }
+  .cta-button { display: block; text-align: center; background: #2563eb; color: #fff; text-decoration: none; padding: 14px 24px; border-radius: 8px; font-weight: 700; font-size: 15px; margin-bottom: 20px; }
+  .deadline { background: #fef3c7; border-radius: 8px; padding: 12px 16px; font-size: 14px; color: #92400e; margin-bottom: 24px; }
+  .footer { text-align: center; font-size: 13px; color: #999; padding: 20px 32px; border-top: 1px solid #f0f0f0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo"><span>✓</span> DailyDo</div>
+    <div class="header-sub">Smart Task Reminders</div>
+  </div>
+  <div class="body">
+    <div class="greeting">Hey {{ user.display_name }}! ⏰</div>
+    <p class="intro">You still have <strong>{{ pending_count }} task{{ pending_count|pluralize }}</strong> on your list today. Here's a friendly nudge to get them done.</p>
+
+    <div class="task-section">
+      <div class="task-section-title">Pending Right Now</div>
+      {% for task in pending_tasks %}
+      <div class="task-item">
+        <div class="task-dot"></div>
+        <div class="task-text">{{ task.title }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <a href="{{ site_url }}" class="cta-button">Open DailyDo Dashboard →</a>
+
+    <div class="deadline">
+      ⏳ <strong>Heads up:</strong> Incomplete tasks get archived at 11:59 PM tonight.
+    </div>
+
+    <p style="color: #777; font-size: 14px;">You're doing great — keep going! 💪</p>
+  </div>
+  <div class="footer">
+    This is an automated reminder from DailyDo. Reminders send every 4 hours until all tasks are cleared.
+  </div>
+</div>
+</body>
+</html>

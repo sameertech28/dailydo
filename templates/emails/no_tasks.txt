@@ -1,0 +1,10 @@
+Hey {{ user.display_name }}!
+
+You haven't added any tasks for today yet.
+
+Open DailyDo and plan your day: {{ site_url }}
+
+Tip: Add up to 50 tasks per day. Tasks auto-archive at 11:59 PM.
+
+---
+DailyDo

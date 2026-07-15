@@ -1,0 +1,19 @@
+Day complete, {{ user.display_name }}!
+
+Date: {{ date }}
+
+TODAY'S SUMMARY:
+- Completed: {{ completed }}
+- Archived (unfinished): {{ archived|length }}
+- Skipped: {{ removed }}
+
+{% if archived %}ARCHIVED TASKS:
+{% for task in archived %}- {{ task.title }}
+{% endfor %}{% endif %}
+
+View your archive: {{ site_url }}/archive/
+Plan tomorrow: {{ site_url }}
+
+See you in the morning!
+---
+DailyDo

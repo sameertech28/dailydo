@@ -1,0 +1,14 @@
+Hey {{ user.display_name }}!
+
+REMINDER: You have {{ pending_count }} task{{ pending_count|pluralize }} pending today.
+
+PENDING TASKS:
+{% for task in pending_tasks %}- {{ task.title }}
+{% endfor %}
+
+Open your dashboard: {{ site_url }}
+
+Incomplete tasks get archived at 11:59 PM tonight.
+
+---
+DailyDo - Reminders every 4 hours until done.

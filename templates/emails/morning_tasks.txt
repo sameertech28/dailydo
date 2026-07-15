@@ -1,0 +1,14 @@
+Good morning {{ user.display_name|default:user.email }}! 🌅
+
+You have {{ task_count }} task{{ task_count|pluralize }} scheduled for today.
+
+{% for task in tasks %}
+- {{ task.title }}{% if task.description %} ({{ task.description }}){% endif %}
+{% endfor %}
+
+Have a productive day! We'll start reminding you about these in 4 hours.
+
+View on Dashboard: {{ site_url }}
+
+--
+Sent by DailyDo • You receive this because you scheduled tasks for today.
