@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% block title %}Upcoming Tasks{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <div class="dashboard-header">
+        <div>
+            <h1 class="dashboard-title">
+                Upcoming Tasks
+            </h1>
+            <p class="dashboard-subtitle">
+                Tasks scheduled for future dates.
+            </p>
+        </div>
+        <a href="{% url 'add_task' %}" class="btn btn-primary btn-add">
+            <i class="fa-solid fa-plus"></i>
+            <span>Add Task</span>
+        </a>
+    </div>
+
+    <div class="tasks-section mt-4">
+        {% if tasks %}
+            <div class="task-group">
+                <div class="task-list">
+                    {% for task in tasks %}
+                    <div class="task-card task-card--pending">
+                        <div class="task-main">
+                            <div class="task-check-area">
+                                <i class="fa-regular fa-calendar" style="color: var(--text-muted); font-size: 1.25rem;"></i>
+                            </div>
+                            <div class="task-content">
+                                <div class="task-title">{{ task.title }}</div>
+                                {% if task.description %}
+                                <div class="task-desc">{{ task.description }}</div>
+                                {% endif %}
+                                <div class="task-meta" style="color: var(--primary);">
+                                    Scheduled for {{ task.date|date:"F j, Y" }}
+                                </div>
+                            </div>
+                            <div class="task-actions">
+                                <a href="{% url 'edit_task' task.pk %}" class="task-btn task-btn--edit" title="Edit task">
+                                    <i class="fa-solid fa-pen"></i>
+                                </a>
+                                <form method="post" action="{% url 'delete_task' task.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="task-btn task-btn--delete" title="Permanently delete task"
+                                        onclick="return confirm('Permanently delete this upcoming task? This cannot be undone.')">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📅</div>
+            <h2 class="empty-title">No upcoming tasks</h2>
+            <p class="empty-desc">You haven't scheduled any tasks for future dates.</p>
+            <a href="{% url 'add_task' %}" class="btn btn-primary btn-lg">
+                <i class="fa-solid fa-plus me-1"></i> Schedule a task
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
