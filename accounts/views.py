@@ -2,10 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.views.generic import CreateView, FormView, View
+from django.views.generic import CreateView, FormView, View, UpdateView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, SettingsForm
 from tasks_app.models import DailyRecord, Task
 from django.utils import timezone
 
@@ -90,3 +90,16 @@ class ProfileView(LoginRequiredMixin, View):
             else:
                 break
         return streak
+
+
+class SettingsView(LoginRequiredMixin, UpdateView):
+    template_name = 'accounts/settings.html'
+    form_class = SettingsForm
+    success_url = reverse_lazy('profile')
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def form_valid(self, form):
+        messages.success(self.request, 'Your profile settings have been updated successfully.')
+        return super().form_valid(form)
