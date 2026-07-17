@@ -41,11 +41,20 @@
             </div>
 
             <!-- Security Section -->
-            <div class="card border-0 shadow-sm custom-card">
+            <div class="card border-0 shadow-sm custom-card mb-4">
                 <div class="card-body p-4">
                     <h4 class="h5 font-weight-bold mb-3">Security</h4>
                     <p class="text-muted small mb-3">Update your password to keep your account secure.</p>
                     <a href="{% url 'password_change' %}" class="btn btn-outline-primary">Change Password</a>
+                </div>
+            </div>
+
+            <!-- Data Management Section -->
+            <div class="card border-0 shadow-sm custom-card">
+                <div class="card-body p-4">
+                    <h4 class="h5 font-weight-bold mb-3">Data Management</h4>
+                    <p class="text-muted small mb-3">Download a copy of your task history.</p>
+                    <a href="{% url 'export_tasks' %}" class="btn btn-outline-success">Export Tasks to CSV</a>
                 </div>
             </div>
             

@@ -310,3 +310,25 @@ class UpcomingTasksView(LoginRequiredMixin, View):
             'total_count': tasks.count(),
         }
         return render(request, self.template_name, context)
+
+import csv
+from django.http import HttpResponse
+
+class ExportTasksCSVView(LoginRequiredMixin, View):
+    def get(self, request):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="tasks_history.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow(['Date', 'Title', 'Description', 'Status', 'Created At'])
+
+        tasks = Task.objects.filter(user=request.user).order_by('-date')
+        for task in tasks:
+            writer.writerow([
+                task.date,
+                task.title,
+                task.description,
+                task.status,
+                task.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            ])
+        return response

@@ -14,4 +14,5 @@ urlpatterns = [
     path('trigger-reminder/', views.TriggerReminderView.as_view(), name='trigger_reminder'),
     path('confirm-tasks/', views.ConfirmTasksView.as_view(), name='confirm_tasks'),
     path('upcoming/', views.UpcomingTasksView.as_view(), name='upcoming'),
+    path('export/', views.ExportTasksCSVView.as_view(), name='export_tasks'),
 ]
