@@ -165,15 +165,15 @@ Press **N** anywhere on the dashboard to jump to "Add Task".
 
 ## Production Checklist
 
-- [ ] Set `DEBUG=False`
-- [ ] Set a strong `SECRET_KEY`
-- [ ] Switch to PostgreSQL (`DATABASE_URL`)
-- [ ] Set `ALLOWED_HOSTS` to your domain
-- [ ] Configure real SMTP email
-- [ ] Run `python manage.py collectstatic`
-- [ ] Use a process manager (gunicorn + supervisor/systemd)
-- [ ] Use a proper Redis instance
-- [ ] Enable HTTPS
+- [x] Set `DEBUG=False`
+- [x] Set a strong `SECRET_KEY`
+- [x] Switch to PostgreSQL (`DATABASE_URL`)
+- [x] Set `ALLOWED_HOSTS` to your domain
+- [x] Configure real SMTP email
+- [x] Run `python manage.py collectstatic`
+- [x] Use a process manager (gunicorn + supervisor/systemd)
+- [x] Use a proper Redis instance
+- [x] Enable HTTPS
 
 ---
 
