@@ -1,0 +1,81 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: dailydo_db
+      POSTGRES_USER: dailydo_user
+      POSTGRES_PASSWORD: dailydo_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dailydo_user -d dailydo_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  web:
+    build: .
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             gunicorn daily_reminder.wsgi:application --bind 0.0.0.0:8000"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://dailydo_user:dailydo_pass@db:5432/dailydo_db
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - DEBUG=False
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  celery:
+    build: .
+    command: celery -A daily_reminder worker --loglevel=info
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://dailydo_user:dailydo_pass@db:5432/dailydo_db
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - web
+      - redis
+
+  celery-beat:
+    build: .
+    command: celery -A daily_reminder beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://dailydo_user:dailydo_pass@db:5432/dailydo_db
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+    depends_on:
+      - web
+      - redis
+
+  nginx:
+    image: nginx:1.25
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - web
+
+volumes:
+  postgres_data:
